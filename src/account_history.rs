@@ -57,7 +57,7 @@ pub struct Account_History {
     Hash: String,
 }
 
-pub fn read_records(filename: String) -> anyhow::Result<Vec<Account_History>> {
+pub fn read_account_history_records(filename: String) -> anyhow::Result<Vec<Account_History>> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
     let data_filter = DataFilter::new(buf_reader);
@@ -77,7 +77,7 @@ pub fn read_records(filename: String) -> anyhow::Result<Vec<Account_History>> {
     Ok(records)
 }
 pub async fn load_account_history(pool: &MySqlPool, filename: String) -> anyhow::Result<u32> {
-    let records = read_records(filename)?;
+    let records = read_account_history_records(filename)?;
 
     let cmd = r#"
         INSERT INTO Accounts_History (

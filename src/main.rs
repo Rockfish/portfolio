@@ -2,13 +2,15 @@ mod account_history;
 mod data_filter;
 mod date_format;
 mod dbconfig;
-mod positions;
+mod account_positions;
+mod decimal_formats;
 
 use crate::account_history::load_account_history;
 use crate::dbconfig::get_db_config;
 use sqlx::mysql::MySqlPool;
 use std::path::Path;
 use structopt::StructOpt;
+use crate::account_positions::{load_account_positions_dividends, load_account_positions_overview};
 
 const DATA_FOLDER: &str = "/Users/john/Portfolio_Data";
 
@@ -21,6 +23,8 @@ struct Args {
 #[derive(StructOpt)]
 enum Command {
     LoadAccountHistory { filename: String },
+    LoadAccountPositionOverview { filename: String },
+    LoadAccountPositionDividends { filename: String },
     Done { id: u64 },
 }
 
@@ -67,6 +71,30 @@ async fn main() -> anyhow::Result<()> {
                 println!("Loading account history from: '{filename}'");
                 let count = load_account_history(&pool, filename).await?;
                 println!("Added {count} account records");
+            }
+            Err(e) => println!("Error: {e}"),
+        },
+        Some(Command::LoadAccountPositionOverview { filename }) => match get_file_path(&filename) {
+            Ok(filename) => {
+                if !filename.contains("Portfolio_Positions_Overview") {
+                    println!("Error: not a Portfolio_Positions_Overview file: {filename}")
+                } else {
+                    println!("Loading account positions_overview from: '{filename}'");
+                    let count = load_account_positions_overview(&pool, filename).await?;
+                    println!("Added {count} account records");
+                }
+            }
+            Err(e) => println!("Error: {e}"),
+        },
+        Some(Command::LoadAccountPositionDividends { filename }) => match get_file_path(&filename) {
+            Ok(filename) => {
+                if !filename.contains("Portfolio_Positions_Dividend") {
+                    println!("Error: not a Portfolio_Positions_Dividend file: {filename}")
+                } else {
+                    println!("Loading account position dividends from: '{filename}'");
+                    let count = load_account_positions_dividends(&pool, filename).await?;
+                    println!("Added {count} account records");
+                }
             }
             Err(e) => println!("Error: {e}"),
         },
