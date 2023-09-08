@@ -2,19 +2,21 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Lines};
 use std::{fs, io};
 
-pub struct CsvFilter {
+pub struct DataFilter {
     lines: Lines<BufReader<File>>,
 }
 
-impl CsvFilter {
+impl DataFilter {
     pub fn new(reader: io::BufReader<fs::File>) -> Self {
-        CsvFilter {
+        DataFilter {
             lines: reader.lines(),
         }
     }
 }
 
-impl io::Read for CsvFilter {
+// Fidelity Data has miscellaneous lines that need to be ignored.
+// good lines have commas and don't start with a quote
+impl io::Read for DataFilter {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         loop {
             let line = self.lines.next();
@@ -23,8 +25,9 @@ impl io::Read for CsvFilter {
                 Some(result) => match result {
                     Err(e) => return Err(e),
                     Ok(line) => {
-                        // good lines have commas
-                        if line.contains(",") {
+                        // good lines have commas and don't start with a quote
+                        if line.contains(",") && !line.starts_with("\"") {
+                            // println!("{line}");
                             let temp = line.as_bytes();
                             let size = temp.len();
                             buf[..size].copy_from_slice(&temp[..size]);

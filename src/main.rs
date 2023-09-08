@@ -1,12 +1,16 @@
 mod account_history;
-mod csv_filter;
+mod data_filter;
 mod date_format;
 mod dbconfig;
+mod positions;
 
 use crate::account_history::load_account_history;
 use crate::dbconfig::get_db_config;
 use sqlx::mysql::MySqlPool;
+use std::path::Path;
 use structopt::StructOpt;
+
+const DATA_FOLDER: &str = "/Users/john/Portfolio_Data";
 
 #[derive(StructOpt)]
 struct Args {
@@ -16,8 +20,36 @@ struct Args {
 
 #[derive(StructOpt)]
 enum Command {
-    Load { filename: String },
+    LoadAccountHistory { filename: String },
     Done { id: u64 },
+}
+
+fn test_path(filename: &str) -> Result<String, String> {
+    let path = Path::new(filename);
+    if path.exists() {
+        if path.is_file() {
+            match path.to_str() {
+                None => panic!("path is not valid utc-8"),
+                Some(s) => return Ok(s.to_string()),
+            }
+        } else {
+            return Err(format!("path: '{filename}' exits but is not a file"));
+        }
+    }
+    Err(format!("path: '{filename}' does not exist"))
+}
+
+fn get_file_path(filename: &str) -> Result<String, String> {
+    match test_path(filename) {
+        Ok(filename) => Ok(filename),
+        Err(_) => match Path::new(DATA_FOLDER).join(filename).to_str() {
+            None => panic!("path.to_str() error"),
+            Some(filepath) => match test_path(filepath) {
+                Ok(filename) => Ok(filename),
+                Err(e) => Err(e),
+            },
+        },
+    }
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -30,11 +62,14 @@ async fn main() -> anyhow::Result<()> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     match args.cmd {
-        Some(Command::Load { filename }) => {
-            println!("Loading account history from: '{filename}'");
-            let count = load_account_history(&pool, filename).await?;
-            println!("Added {count} account records");
-        }
+        Some(Command::LoadAccountHistory { filename }) => match get_file_path(&filename) {
+            Ok(filename) => {
+                println!("Loading account history from: '{filename}'");
+                let count = load_account_history(&pool, filename).await?;
+                println!("Added {count} account records");
+            }
+            Err(e) => println!("Error: {e}"),
+        },
         Some(Command::Done { id }) => {
             println!("Marking todo {id} as done");
             // if complete_todo(&pool, id).await? {
@@ -51,60 +86,3 @@ async fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
-
-// async fn add_todo(pool: &MySqlPool, description: String) -> anyhow::Result<u64> {
-//     // Insert the task, then obtain the ID of this row
-//     let todo_id = sqlx::query!(
-//         r#"
-// INSERT INTO todos ( description )
-// VALUES ( ? )
-//         "#,
-//         description
-//     )
-//     .execute(pool)
-//     .await?
-//     .last_insert_id();
-//
-//     Ok(todo_id)
-// }
-//
-// async fn complete_todo(pool: &MySqlPool, id: u64) -> anyhow::Result<bool> {
-//     let rows_affected = sqlx::query!(
-//         r#"
-// UPDATE todos
-// SET done = TRUE
-// WHERE id = ?
-//         "#,
-//         id
-//     )
-//     .execute(pool)
-//     .await?
-//     .rows_affected();
-//
-//     Ok(rows_affected > 0)
-// }
-//
-// async fn list_todos(pool: &MySqlPool) -> anyhow::Result<()> {
-//     let recs = sqlx::query!(
-//         r#"
-// SELECT id, description, done
-// FROM todos
-// ORDER BY id
-//         "#
-//     )
-//     .fetch_all(pool)
-//     .await?;
-//
-//     // NOTE: Booleans in MySQL are stored as `TINYINT(1)` / `i8`
-//     //       0 = false, non-0 = true
-//     for rec in recs {
-//         println!(
-//             "- [{}] {}: {}",
-//             if rec.done != 0 { "x" } else { " " },
-//             rec.id,
-//             &rec.description,
-//         );
-//     }
-//
-//     Ok(())
-// }
