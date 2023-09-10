@@ -8,9 +8,7 @@ pub struct DataFilter {
 
 impl DataFilter {
     pub fn new(reader: io::BufReader<fs::File>) -> Self {
-        DataFilter {
-            lines: reader.lines(),
-        }
+        DataFilter { lines: reader.lines() }
     }
 }
 
@@ -26,7 +24,7 @@ impl io::Read for DataFilter {
                     Err(e) => return Err(e),
                     Ok(line) => {
                         // good lines have commas and don't start with a quote
-                        if line.contains(",") && !line.starts_with("\"") {
+                        if line.contains(',') && !line.starts_with('"') {
                             // println!("{line}");
                             let temp = line.as_bytes();
                             let size = temp.len();

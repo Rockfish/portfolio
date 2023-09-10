@@ -6,14 +6,14 @@ pub fn serialize<S>(date: &Option<Date>, serializer: S) -> Result<S::Ok, S::Erro
 where
     S: Serializer,
 {
-    return match date {
+    match date {
         None => serializer.serialize_str(""),
         Some(date) => {
             let format = format_description!("[year]-[month]-[day]");
             let s = format!("{:?}", date.format(&format));
             serializer.serialize_str(&s)
         }
-    };
+    }
 }
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Date>, D::Error>
@@ -41,8 +41,8 @@ where
 
     let result = Date::parse(&s, &format);
 
-    return match result {
+    match result {
         Ok(date) => Ok(Some(date)),
         Err(_error) => Ok(None),
-    };
+    }
 }

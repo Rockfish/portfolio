@@ -65,5 +65,5 @@ from (select id                                     AS id,
              Amount                                 AS Amount,
              Settlement_Date                        AS Settlement_Date,
              row_number() OVER (PARTITION BY Hash ) AS row_num
-      from portfolio.accounts_history) data
+      from account_history) data
 where (row_num = 1);

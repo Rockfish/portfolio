@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS Account_Positions_Overview
 (
-    id                      BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id                      INT GENERATED ALWAYS AS IDENTITY,
     Account_Number          TEXT,
     Account_Name            TEXT,
     Symbol                  TEXT,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS Account_Positions_Overview
 
 CREATE TABLE IF NOT EXISTS Account_Positions_Dividends
 (
-    id                 BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id                 INT GENERATED ALWAYS AS IDENTITY,
     Account_Number     TEXT,
     Account_Name       TEXT,
     Symbol             TEXT,

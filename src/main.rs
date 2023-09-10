@@ -1,72 +1,30 @@
 mod account_history;
+mod account_positions;
+mod commands;
+mod config;
 mod data_filter;
 mod date_format;
-mod dbconfig;
-mod account_positions;
 mod decimal_formats;
 
 use crate::account_history::load_account_history;
-use crate::dbconfig::get_db_config;
-use sqlx::mysql::MySqlPool;
-use std::path::Path;
-use structopt::StructOpt;
 use crate::account_positions::{load_account_positions_dividends, load_account_positions_overview};
-
-const DATA_FOLDER: &str = "/Users/john/Portfolio_Data";
-
-#[derive(StructOpt)]
-struct Args {
-    #[structopt(subcommand)]
-    cmd: Option<Command>,
-}
-
-#[derive(StructOpt)]
-enum Command {
-    LoadAccountHistory { filename: String },
-    LoadAccountPositionOverview { filename: String },
-    LoadAccountPositionDividends { filename: String },
-    Done { id: u64 },
-}
-
-fn test_path(filename: &str) -> Result<String, String> {
-    let path = Path::new(filename);
-    if path.exists() {
-        if path.is_file() {
-            match path.to_str() {
-                None => panic!("path is not valid utc-8"),
-                Some(s) => return Ok(s.to_string()),
-            }
-        } else {
-            return Err(format!("path: '{filename}' exits but is not a file"));
-        }
-    }
-    Err(format!("path: '{filename}' does not exist"))
-}
-
-fn get_file_path(filename: &str) -> Result<String, String> {
-    match test_path(filename) {
-        Ok(filename) => Ok(filename),
-        Err(_) => match Path::new(DATA_FOLDER).join(filename).to_str() {
-            None => panic!("path.to_str() error"),
-            Some(filepath) => match test_path(filepath) {
-                Ok(filename) => Ok(filename),
-                Err(e) => Err(e),
-            },
-        },
-    }
-}
+use crate::commands::{Args, Command};
+use crate::config::{get_config, get_file_path};
+use sqlx::postgres::PgPool;
+use structopt::StructOpt;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
-    let dbconfig = get_db_config();
+    let config = get_config();
 
     let args = Args::from_args_safe()?;
-    let pool = MySqlPool::connect(&dbconfig.url).await?;
+    let pool = PgPool::connect(&config.db_connection_string).await?;
 
     sqlx::migrate!("./migrations").run(&pool).await?;
+    println!("migration completed");
 
     match args.cmd {
-        Some(Command::LoadAccountHistory { filename }) => match get_file_path(&filename) {
+        Some(Command::LoadAccountHistory { filename }) => match get_file_path(&config, &filename) {
             Ok(filename) => {
                 println!("Loading account history from: '{filename}'");
                 let count = load_account_history(&pool, filename).await?;
@@ -74,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
             }
             Err(e) => println!("Error: {e}"),
         },
-        Some(Command::LoadAccountPositionOverview { filename }) => match get_file_path(&filename) {
+        Some(Command::LoadAccountPositionOverview { filename }) => match get_file_path(&config, &filename) {
             Ok(filename) => {
                 if !filename.contains("Portfolio_Positions_Overview") {
                     println!("Error: not a Portfolio_Positions_Overview file: {filename}")
@@ -86,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
             }
             Err(e) => println!("Error: {e}"),
         },
-        Some(Command::LoadAccountPositionDividends { filename }) => match get_file_path(&filename) {
+        Some(Command::LoadAccountPositionDividends { filename }) => match get_file_path(&config, &filename) {
             Ok(filename) => {
                 if !filename.contains("Portfolio_Positions_Dividend") {
                     println!("Error: not a Portfolio_Positions_Dividend file: {filename}")

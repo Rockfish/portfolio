@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXISTS Accounts_History (
-    id                   BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS Account_History (
+    id                   INT GENERATED ALWAYS AS IDENTITY,
     Run_Date             DATE,
     Account              TEXT,
     Action               TEXT,
@@ -20,11 +20,21 @@ CREATE TABLE IF NOT EXISTS Accounts_History (
     Hash                 TEXT
 );
 
-CREATE TABLE IF NOT EXISTS Accounts_History_Data_Files
+CREATE TABLE IF NOT EXISTS Account_History_Data_Files
 (
-    id              BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id              INT GENERATED ALWAYS AS IDENTITY,
     file_name       TEXT,
     file_date       DATE,
     data_start_date DATE,
     data_end_date   DATE
 );
+
+create or replace procedure account_history_cleanup()
+    LANGUAGE SQL
+BEGIN ATOMIC
+delete
+from Account_History
+where id in (select id
+             from (select id, row_number() over (partition by Hash) as row_num from Account_History) as data
+             where data.row_num > 1);
+END;

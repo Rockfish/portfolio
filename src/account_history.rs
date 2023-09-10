@@ -12,7 +12,7 @@ use csv::{ReaderBuilder, Trim};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use sha256::digest;
-use sqlx::MySqlPool;
+use sqlx::PgPool;
 use std::fs::File;
 use std::io::BufReader;
 use time::Date;
@@ -76,11 +76,11 @@ pub fn read_account_history_records(filename: String) -> anyhow::Result<Vec<Acco
     }
     Ok(records)
 }
-pub async fn load_account_history(pool: &MySqlPool, filename: String) -> anyhow::Result<u32> {
+pub async fn load_account_history(pool: &PgPool, filename: String) -> anyhow::Result<u32> {
     let records = read_account_history_records(filename)?;
 
     let cmd = r#"
-        INSERT INTO Accounts_History (
+        INSERT INTO Account_History (
             Run_Date,
             Account,
             Action,
@@ -99,7 +99,7 @@ pub async fn load_account_history(pool: &MySqlPool, filename: String) -> anyhow:
             Amount,
             Settlement_Date,
             Hash
-        ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
         "#;
 
     let mut count = 0;

@@ -1,18 +1,17 @@
-
 #![allow(dead_code)]
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-
-use std::fs::File;
-use std::io::BufReader;
+use crate::data_filter::DataFilter;
 use csv::{ReaderBuilder, Trim};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use sha256::digest;
-use sqlx::MySqlPool;
+use sqlx::PgPool;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use time::macros::format_description;
 use time::Date;
-use crate::data_filter::DataFilter;
 
 #[allow(unused_imports)]
 use crate::decimal_formats::*;
@@ -135,7 +134,7 @@ pub fn read_account_position_dividends(filename: String) -> anyhow::Result<Vec<A
     Ok(records)
 }
 
-pub async fn load_account_positions_overview(pool: &MySqlPool, filename: String) -> anyhow::Result<u32> {
+pub async fn load_account_positions_overview(pool: &PgPool, filename: String) -> anyhow::Result<u32> {
     let records = read_account_position_overview(filename)?;
 
     let cmd = r#"
@@ -157,7 +156,7 @@ pub async fn load_account_positions_overview(pool: &MySqlPool, filename: String)
             Average_Cost_Basis,
             Type,
             Hash
-        ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         "#;
 
     let mut count = 0;
@@ -190,7 +189,7 @@ pub async fn load_account_positions_overview(pool: &MySqlPool, filename: String)
     Ok(count)
 }
 
-pub async fn load_account_positions_dividends(pool: &MySqlPool, filename: String) -> anyhow::Result<u32> {
+pub async fn load_account_positions_dividends(pool: &PgPool, filename: String) -> anyhow::Result<u32> {
     let records = read_account_position_dividends(filename)?;
 
     let cmd = r#"
@@ -211,7 +210,7 @@ pub async fn load_account_positions_dividends(pool: &MySqlPool, filename: String
             Est_Annual_Income,
             Type,
             Hash
-        ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         "#;
 
     let mut count = 0;
@@ -241,4 +240,32 @@ pub async fn load_account_positions_dividends(pool: &MySqlPool, filename: String
         count += 1;
     }
     Ok(count)
+}
+
+pub fn extract_date(filename: &str) -> Result<Date, String> {
+    let file = File::open(filename).expect("Failed to open file");
+    let buf_reader = BufReader::new(file);
+
+    for line in buf_reader.lines().flatten() {
+        if line.starts_with("\"Date downloaded") {
+            let format = format_description!("[month]/[day]/[year]");
+            let date_str = &line[17..27];
+            return match Date::parse(date_str, &format) {
+                Ok(date) => Ok(date),
+                Err(e) => Err(e.to_string()),
+            };
+        }
+    }
+    Err("Date not found".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::account_positions::extract_date;
+
+    #[test]
+    fn test_extract_date() {
+        let date = extract_date("/Users/john/Portfolio_Data/Portfolio_Positions_Dividend_Sep-08-2023.csv");
+        println!("Date: {:?}", date);
+    }
 }

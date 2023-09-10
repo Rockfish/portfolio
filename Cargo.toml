@@ -14,7 +14,8 @@ futures = "0.3"
 rust_decimal = "1.32.0"
 serde = { version = "1.0.188", features = ["derive"] }
 sha256 = "1.4.0"
-sqlx = { version = "0.7.1", features = [ "mysql", "runtime-tokio-native-tls", "rust_decimal", "time" ] }
+shellexpand = "3.1.0"
+sqlx = { version = "0.7.1", features = [ "postgres", "runtime-tokio-native-tls", "rust_decimal", "time" ] }
 structopt = "0.3"
 time = { version = "0.3.28", features = ["serde", "parsing"] }
 tokio = { version = "1.20.0", features = ["rt", "macros"]}
