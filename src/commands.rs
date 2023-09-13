@@ -11,5 +11,6 @@ pub enum Command {
     LoadAccountHistory { filename: String },
     LoadAccountPositionOverview { filename: String },
     LoadAccountPositionDividends { filename: String },
+    LoadBlueChipStocks { filename: String },
     Done { id: u64 },
 }

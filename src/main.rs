@@ -1,5 +1,7 @@
 mod account_history;
 mod account_positions;
+mod blue_chips;
+mod chart_data;
 mod commands;
 mod config;
 mod data_filter;
@@ -8,6 +10,7 @@ mod decimal_formats;
 
 use crate::account_history::load_account_history;
 use crate::account_positions::{load_account_positions_dividends, load_account_positions_overview};
+use crate::blue_chips::load_blue_chip_stocks;
 use crate::commands::{Args, Command};
 use crate::config::{get_config, get_file_path};
 use sqlx::postgres::PgPool;
@@ -53,6 +56,14 @@ async fn main() -> anyhow::Result<()> {
                     let count = load_account_positions_dividends(&pool, filename).await?;
                     println!("Added {count} account records");
                 }
+            }
+            Err(e) => println!("Error: {e}"),
+        },
+        Some(Command::LoadBlueChipStocks { filename }) => match get_file_path(&config, &filename) {
+            Ok(filename) => {
+                println!("Loading blue chips stocks from: '{filename}'");
+                let count = load_blue_chip_stocks(&pool, filename).await?;
+                println!("Added {} account records", count);
             }
             Err(e) => println!("Error: {e}"),
         },

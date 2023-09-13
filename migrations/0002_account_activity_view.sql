@@ -7,7 +7,7 @@ select id,
             when (Action like 'YOU BOUGHT%') then 'Bought'
             when (Action like 'YOU SOLD%') then 'Sold'
             when (Action like 'DIVIDEND RECEIVED%') then 'Dividend'
-            when (Action like 'INTEREST EARNED%') then 'Earned interest'
+            when (Action like 'INTEREST EARNED%') then 'Interest Earned'
             when (Action like 'REINVESTMENT%') then 'Reinvestment'
             when (Action like 'TRANSFERRED FROM%') then 'Transferred in'
             when (Action like 'TRANSFERRED TO%') then 'Transferred out'

@@ -82,7 +82,7 @@ pub struct Account_Positions_Dividends {
     Percent_Of_Account: Option<Decimal>,
     #[serde(rename = "Ex-Date", with = "date_format")]
     Ex_Date: Option<Date>,
-    #[serde(rename = "Amount Per Share", deserialize_with = "deserialize_percentage")]
+    #[serde(rename = "Amount Per Share", deserialize_with = "deserialize_dollar")]
     Amount_Per_Share: Option<Decimal>,
     #[serde(rename = "Pay Date", with = "date_format")]
     Pay_Date: Option<Date>,
