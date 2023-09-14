@@ -1,8 +1,8 @@
-create table chart_date
+create table chart_data
 (
     id                    INT GENERATED ALWAYS AS IDENTITY,
     Symbol                TEXT,
-    Chart_Link            TEXT,
+    Chart                 TEXT,
     Update_date           TEXT,
     Quality_Rank          TEXT,
     Shares_Outstanding    TEXT,

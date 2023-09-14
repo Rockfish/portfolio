@@ -11,6 +11,7 @@ mod decimal_formats;
 use crate::account_history::load_account_history;
 use crate::account_positions::{load_account_positions_dividends, load_account_positions_overview};
 use crate::blue_chips::load_blue_chip_stocks;
+use crate::chart_data::load_chart_data;
 use crate::commands::{Args, Command};
 use crate::config::{get_config, get_file_path};
 use sqlx::postgres::PgPool;
@@ -31,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
             Ok(filename) => {
                 println!("Loading account history from: '{filename}'");
                 let count = load_account_history(&pool, filename).await?;
-                println!("Added {count} account records");
+                println!("Added {count} records");
             }
             Err(e) => println!("Error: {e}"),
         },
@@ -42,7 +43,7 @@ async fn main() -> anyhow::Result<()> {
                 } else {
                     println!("Loading account positions_overview from: '{filename}'");
                     let count = load_account_positions_overview(&pool, filename).await?;
-                    println!("Added {count} account records");
+                    println!("Added {count} records");
                 }
             }
             Err(e) => println!("Error: {e}"),
@@ -54,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
                 } else {
                     println!("Loading account position dividends from: '{filename}'");
                     let count = load_account_positions_dividends(&pool, filename).await?;
-                    println!("Added {count} account records");
+                    println!("Added {count} records");
                 }
             }
             Err(e) => println!("Error: {e}"),
@@ -63,7 +64,15 @@ async fn main() -> anyhow::Result<()> {
             Ok(filename) => {
                 println!("Loading blue chips stocks from: '{filename}'");
                 let count = load_blue_chip_stocks(&pool, filename).await?;
-                println!("Added {} account records", count);
+                println!("Added {} records", count);
+            }
+            Err(e) => println!("Error: {e}"),
+        },
+        Some(Command::LoadChartData { filename }) => match get_file_path(&config, &filename) {
+            Ok(filename) => {
+                println!("Loading chart data from: '{filename}'");
+                let count = load_chart_data(&pool, filename).await?;
+                println!("Added {} records", count);
             }
             Err(e) => println!("Error: {e}"),
         },
