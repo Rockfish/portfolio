@@ -1,6 +1,4 @@
 #![allow(dead_code)]
-#![allow(non_snake_case)]
-#![allow(non_camel_case_types)]
 
 use crate::data_filter::DataFilter;
 use csv::{ReaderBuilder, Trim};
@@ -24,6 +22,8 @@ use date_format::*;
 // Fidelity Account Position - Overview and Dividends views
 // These are the struct for reading in the raw Fidelity data.
 // Can be join on {account_number, symbol, quantity)
+#[allow(non_snake_case)]
+#[allow(non_camel_case_types)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Account_Positions_Overview {
     #[serde(rename = "Account Number")]
@@ -60,6 +60,8 @@ pub struct Account_Positions_Overview {
     Type: String,
 }
 
+#[allow(non_snake_case)]
+#[allow(non_camel_case_types)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Account_Positions_Dividends {
     #[serde(rename = "Account Number")]
@@ -97,6 +99,8 @@ pub struct Account_Positions_Dividends {
 pub fn read_account_position_overview(filename: String) -> anyhow::Result<Vec<Account_Positions_Overview>> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
+
+    // Only for fidelity csv with junk lines
     let data_filter = DataFilter::new(buf_reader);
 
     let mut reader = ReaderBuilder::new()
@@ -117,6 +121,8 @@ pub fn read_account_position_overview(filename: String) -> anyhow::Result<Vec<Ac
 pub fn read_account_position_dividends(filename: String) -> anyhow::Result<Vec<Account_Positions_Dividends>> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
+
+    // Only for fidelity csv with junk lines
     let data_filter = DataFilter::new(buf_reader);
 
     let mut reader = ReaderBuilder::new()

@@ -54,7 +54,8 @@ from (select overview.id                                                        
 
 
 create view account_dividends_aggregate as
-select symbol,
+select symbol                 as symbol,
+       max(description)       as description,
        sum(quantity)          as quantity,
        max(last_price)        as last_price,
        max(amount_per_share)  as amount_per_share,

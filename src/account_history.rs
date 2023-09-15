@@ -60,6 +60,8 @@ pub struct Account_History {
 pub fn read_account_history_records(filename: String) -> anyhow::Result<Vec<Account_History>> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
+
+    // Only for fidelity csv with junk lines
     let data_filter = DataFilter::new(buf_reader);
 
     let mut reader = ReaderBuilder::new()

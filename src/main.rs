@@ -7,6 +7,7 @@ mod config;
 mod data_filter;
 mod date_format;
 mod decimal_formats;
+mod iq_report;
 
 use crate::account_history::load_account_history;
 use crate::account_positions::{load_account_positions_dividends, load_account_positions_overview};
@@ -16,6 +17,7 @@ use crate::commands::{Args, Command};
 use crate::config::{get_config, get_file_path};
 use sqlx::postgres::PgPool;
 use structopt::StructOpt;
+use crate::iq_report::load_iq_report;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
@@ -76,6 +78,14 @@ async fn main() -> anyhow::Result<()> {
             }
             Err(e) => println!("Error: {e}"),
         },
+        Some(Command::LoadIQReport { filename, date }) => match get_file_path(&config, &filename) {
+            Ok(filename) => {
+                println!("Loading chart data from: '{filename}'");
+                let count = load_iq_report(&pool, filename, &date).await?;
+                println!("Added {} records", count);
+            }
+            Err(e) => println!("Error: {e}"),
+        },
         Some(Command::Done { id }) => {
             println!("Marking todo {id} as done");
             // if complete_todo(&pool, id).await? {
@@ -85,8 +95,7 @@ async fn main() -> anyhow::Result<()> {
             // }
         }
         None => {
-            println!("Printing list of all todos");
-            // list_todos(&pool).await?;
+            println!("Done.");
         }
     }
 
