@@ -1,17 +1,22 @@
+#![allow(non_snake_case)]
+#![allow(non_camel_case_types)]
+#![allow(dead_code)]
+
 use std::fs::File;
-use std::io::BufReader;
-// use chrono::{DateTime, NaiveDate, TimeZone};
+use std::io::{BufReader, Write};
 use csv::{ReaderBuilder, Trim};
+use futures::TryStreamExt;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::{FromRow, PgPool};
 use time::Date;
 use time::macros::format_description;
 #[allow(unused_imports)]
 use crate::decimal_formats::*;
 
-#[allow(non_snake_case)]
-#[allow(non_camel_case_types)]
+#[allow(unused_imports)]
+use crate::date_format;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct IQ_Report {
     #[serde(rename = "STOCK")]
@@ -79,6 +84,49 @@ pub struct IQ_Report {
     #[serde(skip_deserializing)]
     Report_Date: Option<Date>,
 }
+
+// #[serde_as]
+#[allow(dead_code)]
+#[derive(FromRow, Debug, Serialize, Deserialize)]
+pub struct IQ_Report_Table {
+    #[serde(skip)]
+    id: i32,
+    stock: String,
+    div_growth: String,
+    value_rating: String,
+    price: Option<Decimal>,
+    dividend: Option<Decimal>,
+    r#yield: Option<Decimal>,
+    points_down: Option<Decimal>,
+    percent_down: Option<Decimal>,
+    undervalue_lo_price: Option<Decimal>,
+    undervalue_hi_yield: Option<Decimal>,
+    points_up: Option<Decimal>,
+    percent_up: Option<Decimal>,
+    overvalue_hi_price: Option<Decimal>,
+    overvalue_lo_yield: Option<Decimal>,
+    sp_rating: String,
+    lo_52_wk: Option<Decimal>,
+    hi_52_wk: Option<Decimal>,
+    book_value: Option<Decimal>,
+    earnings_12_mo: Option<Decimal>,
+    price_to_earnings: Option<Decimal>,
+    pay_out: Option<Decimal>,
+    div_in_dgr: String,
+    long_term_debt: Option<Decimal>,
+    bluechip_criteria: Option<Decimal>,
+    symbol: String,
+    sector: String,
+    industry: String,
+    sub_sector: String,
+    div_growth_3_year: Option<Decimal>,
+    div_growth_5_year: Option<Decimal>,
+    div_growth_10_year : Option<Decimal>,
+    #[serde(with = "date_format")]
+    report_date: Option<Date>,
+}
+
+
 
 pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IQ_Report>> {
     let file = File::open(filename).expect("Failed to open file");
@@ -192,4 +240,49 @@ pub async fn load_iq_report(pool: &PgPool, filename: String, date_str: &str) -> 
         count += 1;
     }
     Ok(count)
+}
+
+pub async fn iq_report_save_all(pool: &PgPool, filename: &str) {
+    let mut output = File::create(filename).unwrap();
+    let mut stream = sqlx::query_as::<_, IQ_Report_Table>("select * from iq_report order by report_date, symbol")
+        .fetch(pool);
+
+    // output.write("[\n".as_bytes()).unwrap();
+    while let Ok(item) = stream.try_next().await {
+        match item {
+            None => break,
+            Some(report) => {
+                // let data = ron::to_string(&report).unwrap();
+                let data = serde_json::to_string(&report).unwrap();
+                output.write(data.as_bytes()).unwrap();
+                output.write("\n".as_bytes()).unwrap();
+            }
+        }
+    }
+    // output.write("]\n".as_bytes()).unwrap();
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(dead_code)]
+    use sqlx::PgPool;
+    use crate::config::{get_config, make_file_path};
+    use crate::iq_report::iq_report_save_all;
+
+    #[allow(unused_imports)]
+    use crate::date_format;
+
+    #[tokio::test]
+    async fn test_save_all() {
+        let config = get_config();
+        let filename = make_file_path(&config, "data_backup/iq_report_table_save_all.json").unwrap();
+
+        let pool = PgPool::connect(&config.db_connection_string).await;
+        println!("Saving iq_report table data to: {}", filename);
+
+        if let Ok(pool) = pool {
+            iq_report_save_all(&pool, &filename).await;
+        }
+        println!("Done");
+    }
 }

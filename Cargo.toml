@@ -21,7 +21,7 @@ sqlx = { version = "0.7.1", features = [ "postgres", "runtime-tokio-native-tls",
 structopt = "0.3"
 time = { version = "0.3.28", features = ["serde", "parsing"] }
 tokio = { version = "1.20.0", features = ["rt", "macros"]}
-toml = "0.7.6"
+toml = "0.8.0"
 chrono = "0.4.30"
-map-macro = "0.2.6"
-serde_json = "1.0.105"
+#map-macro = "0.2.6"
+serde_json = { version = "1.0.105", features = [] }

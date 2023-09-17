@@ -39,16 +39,15 @@ where iq.rnum = 1;
 
 
 create view portfolio_report as
-select ad.symbol                                           as symbol,
-       ad.description                                      as description,
-       stock                                               as stock,
-       ad.last_price                                       as portfolio_price,
-       ad.yield                                            as portfolio_yield,
-       ir.price                                            as report_price,
-       ir.yield                                            as report_yield,
-       overvalue_hi_price,
-       round((price / overvalue_hi_price) * 100, 0) || '%' as "%_of_overvalue",
-       report_date
+select ad.symbol                                                           as Symbol,
+       (coalesce(ir.stock, ad.description))                                as Description,
+       ad.last_price                                                       as Portfolio_Price,
+       ad.yield                                                            as Portfolio_Yield,
+       (coalesce(ir.price::text, ''))                                            as Report_Price,
+       (coalesce(ir.yield::text, ''))                                            as Report_Yield,
+       (coalesce(ir.overvalue_hi_price::text, ''))                               as Overvalue_Hi_Price,
+       (coalesce(round((price / overvalue_hi_price) * 100, 0) || '%', '')) as "%_of_Overvalue",
+       (coalesce(ir.report_date::text, ''))                                      as Report_Date
 from account_dividends_aggregate ad
          left join iq_report_latest ir on ad.symbol = ir.symbol
-order by "%_of_overvalue" desc;
+order by "%_of_Overvalue" desc nulls last;

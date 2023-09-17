@@ -22,7 +22,6 @@ use crate::iq_report::load_iq_report;
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     let config = get_config();
-
     let args = Args::from_args_safe()?;
     let pool = PgPool::connect(&config.db_connection_string).await?;
 

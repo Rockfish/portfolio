@@ -5,7 +5,7 @@ use lopdf::Document;
 use std::fs::File;
 use std::io::{Read, Write};
 
-pub fn read_data(filename: &str) -> Result<ChartData, String> {
+pub fn read_chart_data(filename: &str) -> Result<ChartData, String> {
     let mut text: String = String::new();
 
     if filename.ends_with("pdf") {
@@ -149,20 +149,20 @@ fn read_pdf(file: &str) -> Result<String, String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::chart_data::extract_data::ChartData;
+    use crate::chart_data::extract_data::*;
     use std::collections::HashSet;
     use std::fs::{read_dir, File};
     use std::io::{Read, Write};
 
     #[test]
     fn test_extract() {
-        let data = ChartData::read_data("/Users/john/Portfolio_Data/IQTrends/bluechips/1634249303__ETN_chart.pdf");
+        let data = read_chart_data("/Users/john/Portfolio_Data/IQTrends/bluechips/1634249303__ETN_chart.pdf");
         println!("{:#?}", data);
     }
 
     #[test]
     fn test_extract_old_chart() {
-        let data = ChartData::read_data("/Users/john/Portfolio_Data/IQTrends/bluechips/1537033430__AEP_chart.pdf");
+        let data = read_chart_data("/Users/john/Portfolio_Data/IQTrends/bluechips/1537033430__AEP_chart.pdf");
         println!("{:#?}", data);
     }
 
@@ -217,7 +217,7 @@ mod tests {
 
         for filename in fixed {
             let full_path = format!("{}{}", "/Users/john/Portfolio_Data/IQTrends/bluechips/", filename);
-            match ChartData::read_data(&full_path) {
+            match read_chart_data(&full_path) {
                 Ok(data) => chart_data.push(data),
                 Err(e) => println!("{}", e),
             }
@@ -225,7 +225,7 @@ mod tests {
 
         for filename in pdfs {
             let full_path = format!("{}{}", "/Users/john/Portfolio_Data/IQTrends/bluechips/", filename);
-            match ChartData::read_data(&full_path) {
+            match read_chart_data(&full_path) {
                 Ok(data) => chart_data.push(data),
                 Err(e) => println!("{}", e),
             }

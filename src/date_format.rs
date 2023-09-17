@@ -10,7 +10,7 @@ where
         None => serializer.serialize_str(""),
         Some(date) => {
             let format = format_description!("[year]-[month]-[day]");
-            let s = format!("{:?}", date.format(&format));
+            let s = format!("{}", date.format(&format).unwrap());
             serializer.serialize_str(&s)
         }
     }
