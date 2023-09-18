@@ -2,17 +2,17 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
-use std::fs::File;
-use std::io::{BufReader, Write};
+#[allow(unused_imports)]
+use crate::decimal_formats::*;
 use csv::{ReaderBuilder, Trim};
 use futures::TryStreamExt;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
-use time::Date;
+use std::fs::File;
+use std::io::{BufReader, Write};
 use time::macros::format_description;
-#[allow(unused_imports)]
-use crate::decimal_formats::*;
+use time::Date;
 
 #[allow(unused_imports)]
 use crate::date_format;
@@ -80,7 +80,7 @@ pub struct IQ_Report {
     #[serde(rename = "5 year Div Growth", deserialize_with = "deserialize_percentage")]
     Div_Growth_5_Year: Option<Decimal>,
     #[serde(rename = "10 Year Div Growth", deserialize_with = "deserialize_percentage")]
-    Div_Growth_10_Year : Option<Decimal>,
+    Div_Growth_10_Year: Option<Decimal>,
     #[serde(skip_deserializing)]
     Report_Date: Option<Date>,
 }
@@ -121,12 +121,10 @@ pub struct IQ_Report_Table {
     sub_sector: String,
     div_growth_3_year: Option<Decimal>,
     div_growth_5_year: Option<Decimal>,
-    div_growth_10_year : Option<Decimal>,
+    div_growth_10_year: Option<Decimal>,
     #[serde(with = "date_format")]
     report_date: Option<Date>,
 }
-
-
 
 pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IQ_Report>> {
     let file = File::open(filename).expect("Failed to open file");
@@ -146,7 +144,7 @@ pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IQ_Report>> {
             Ok(record) => records.push(record),
             Err(e) => {
                 println!("{:#?}", e);
-                return Err(e.into())
+                return Err(e.into());
             }
         }
     }
@@ -244,8 +242,7 @@ pub async fn load_iq_report(pool: &PgPool, filename: String, date_str: &str) -> 
 
 pub async fn iq_report_save_all(pool: &PgPool, filename: &str) {
     let mut output = File::create(filename).unwrap();
-    let mut stream = sqlx::query_as::<_, IQ_Report_Table>("select * from iq_report order by report_date, symbol")
-        .fetch(pool);
+    let mut stream = sqlx::query_as::<_, IQ_Report_Table>("select * from iq_report order by report_date, symbol").fetch(pool);
 
     // output.write("[\n".as_bytes()).unwrap();
     while let Ok(item) = stream.try_next().await {
@@ -265,9 +262,9 @@ pub async fn iq_report_save_all(pool: &PgPool, filename: &str) {
 #[cfg(test)]
 mod tests {
     #![allow(dead_code)]
-    use sqlx::PgPool;
     use crate::config::{get_config, make_file_path};
     use crate::iq_report::iq_report_save_all;
+    use sqlx::PgPool;
 
     #[allow(unused_imports)]
     use crate::date_format;

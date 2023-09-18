@@ -14,6 +14,6 @@ pub enum Command {
     LoadBlueChipStocks { filename: String },
     LoadChartData { filename: String },
     // data format: [month]/[day]/[year]
-    LoadIQReport { filename: String, date: String},
+    LoadIQReport { filename: String, date: String },
     Done { id: u64 },
 }

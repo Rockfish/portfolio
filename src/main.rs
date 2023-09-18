@@ -15,9 +15,9 @@ use crate::blue_chips::load_blue_chip_stocks;
 use crate::chart_data::load_chart_data;
 use crate::commands::{Args, Command};
 use crate::config::{get_config, get_file_path};
+use crate::iq_report::load_iq_report;
 use sqlx::postgres::PgPool;
 use structopt::StructOpt;
-use crate::iq_report::load_iq_report;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
@@ -32,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
         Some(Command::LoadAccountHistory { filename }) => match get_file_path(&config, &filename) {
             Ok(filename) => {
                 println!("Loading account history from: '{filename}'");
-                let count = load_account_history(&pool, filename).await?;
+                let count = load_account_history(&pool, &filename).await?;
                 println!("Added {count} records");
             }
             Err(e) => println!("Error: {e}"),

@@ -37,7 +37,7 @@ pub fn get_file_path(config: &Config, filename: &str) -> Result<String, String> 
 pub fn make_file_path(config: &Config, filename: &str) -> Result<String, String> {
     match test_path(filename) {
         Ok(filename) => Ok(filename),
-        Err(_) => Ok(Path::new(&config.data_folder).join(filename).to_str().unwrap().to_string())
+        Err(_) => Ok(Path::new(&config.data_folder).join(filename).to_str().unwrap().to_string()),
     }
 }
 

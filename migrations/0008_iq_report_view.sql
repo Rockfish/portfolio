@@ -39,7 +39,7 @@ where iq.rnum = 1;
 
 
 create view portfolio_report as
-select ad.symbol                                                           as Symbol,
+select ad.symbol                                                           as symbol,
        (coalesce(ir.stock, ad.description))                                as Description,
        ad.last_price                                                       as Portfolio_Price,
        ad.yield                                                            as Portfolio_Yield,

@@ -1,7 +1,7 @@
 create table chart_data
 (
     id                    INT GENERATED ALWAYS AS IDENTITY,
-    Symbol                TEXT,
+    symbol                TEXT,
     Chart                 TEXT,
     Update_date           TEXT,
     Quality_Rank          TEXT,
