@@ -22,81 +22,77 @@ use date_format::*;
 // Fidelity Account Position - Overview and Dividends views
 // These are the struct for reading in the raw Fidelity data.
 // Can be join on {account_number, symbol, quantity)
-#[allow(non_snake_case)]
-#[allow(non_camel_case_types)]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Account_Positions_Overview {
+pub struct AccountPositionsOverview {
     #[serde(rename = "Account Number")]
-    Account_Number: String,
+    account_number: String,
     #[serde(rename = "Account Name")]
-    Account_Name: String,
+    account_name: String,
     #[serde(rename = "Symbol", deserialize_with = "deserialize_symbol")]
-    Symbol: String,
+    symbol: String,
     #[serde(rename = "Description")]
-    Description: String,
+    description: String,
     #[serde(rename = "Quantity")]
-    Quantity: Option<Decimal>,
+    quantity: Option<Decimal>,
     #[serde(rename = "Last Price", deserialize_with = "deserialize_dollar")]
-    Last_Price: Option<Decimal>,
+    last_price: Option<Decimal>,
     #[serde(rename = "Last Price Change", deserialize_with = "deserialize_dollar")]
-    Last_Price_Change: Option<Decimal>,
+    last_price_change: Option<Decimal>,
     #[serde(rename = "Current Value", deserialize_with = "deserialize_dollar")]
-    Current_Value: Option<Decimal>,
+    current_value: Option<Decimal>,
     #[serde(rename = "Today's Gain/Loss Dollar", deserialize_with = "deserialize_dollar")]
-    Today_Gain_Loss_Dollar: Option<Decimal>,
+    today_gain_loss_dollar: Option<Decimal>,
     #[serde(rename = "Today's Gain/Loss Percent", deserialize_with = "deserialize_percentage")]
-    Today_Gain_Loss_Percent: Option<Decimal>,
+    today_gain_loss_percent: Option<Decimal>,
     #[serde(rename = "Total Gain/Loss Dollar", deserialize_with = "deserialize_dollar")]
-    Total_Gain_Loss_Dollar: Option<Decimal>,
+    total_gain_loss_dollar: Option<Decimal>,
     #[serde(rename = "Total Gain/Loss Percent", deserialize_with = "deserialize_percentage")]
-    Total_Gain_Loss_Percent: Option<Decimal>,
+    total_gain_loss_percent: Option<Decimal>,
     #[serde(rename = "Percent Of Account", deserialize_with = "deserialize_dollar")]
-    Percent_Of_Account: Option<Decimal>,
+    percent_of_account: Option<Decimal>,
     #[serde(rename = "Cost Basis Total", deserialize_with = "deserialize_dollar")]
-    Cost_Basis_Total: Option<Decimal>,
+    cost_basis_total: Option<Decimal>,
     #[serde(rename = "Average Cost Basis", deserialize_with = "deserialize_dollar")]
-    Average_Cost_Basis: Option<Decimal>,
+    average_cost_basis: Option<Decimal>,
     #[serde(rename = "Type")]
-    Type: String,
+    r#type: String,
 }
 
-#[allow(non_snake_case)]
-#[allow(non_camel_case_types)]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Account_Positions_Dividends {
+pub struct AccountPositionsDividends {
     #[serde(rename = "Account Number")]
-    Account_Number: String,
+    account_number: String,
     #[serde(rename = "Account Name")]
-    Account_Name: String,
+    account_name: String,
     #[serde(rename = "Symbol", deserialize_with = "deserialize_symbol")]
-    Symbol: String,
+    symbol: String,
     #[serde(rename = "Description")]
-    Description: String,
+    description: String,
     #[serde(rename = "Quantity")]
-    Quantity: Option<Decimal>,
+    quantity: Option<Decimal>,
     #[serde(rename = "Last Price", deserialize_with = "deserialize_dollar")]
-    Last_Price: Option<Decimal>,
+    last_price: Option<Decimal>,
     #[serde(rename = "Last Price Change", deserialize_with = "deserialize_dollar")]
-    Last_Price_Change: Option<Decimal>,
+    last_price_change: Option<Decimal>,
     #[serde(rename = "Current Value", deserialize_with = "deserialize_dollar")]
-    Current_Value: Option<Decimal>,
+    current_value: Option<Decimal>,
     #[serde(rename = "Percent Of Account", deserialize_with = "deserialize_percentage")]
-    Percent_Of_Account: Option<Decimal>,
+    percent_of_account: Option<Decimal>,
     #[serde(rename = "Ex-Date", with = "date_format")]
-    Ex_Date: Option<Date>,
+    ex_date: Option<Date>,
     #[serde(rename = "Amount Per Share", deserialize_with = "deserialize_dollar")]
-    Amount_Per_Share: Option<Decimal>,
+    amount_per_share: Option<Decimal>,
     #[serde(rename = "Pay Date", with = "date_format")]
-    Pay_Date: Option<Date>,
+    pay_date: Option<Date>,
     #[serde(rename = "Yield", deserialize_with = "deserialize_percentage")]
-    Yield: Option<Decimal>,
+    r#yield: Option<Decimal>,
     #[serde(rename = "Est. Annual Income", deserialize_with = "deserialize_dollar")]
-    Est_Annual_Income: Option<Decimal>,
+    est_annual_income: Option<Decimal>,
     #[serde(rename = "Type")]
-    Type: String,
+    r#type: String,
 }
 
-pub fn read_account_position_overview(filename: String) -> anyhow::Result<Vec<Account_Positions_Overview>> {
+pub fn read_account_position_overview(filename: String) -> anyhow::Result<Vec<AccountPositionsOverview>> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
 
@@ -110,15 +106,15 @@ pub fn read_account_position_overview(filename: String) -> anyhow::Result<Vec<Ac
         .flexible(true)
         .from_reader(data_filter);
 
-    let mut records: Vec<Account_Positions_Overview> = vec![];
+    let mut records: Vec<AccountPositionsOverview> = vec![];
     for result in reader.deserialize() {
-        let record: Account_Positions_Overview = result?;
+        let record: AccountPositionsOverview = result?;
         records.push(record);
     }
     Ok(records)
 }
 
-pub fn read_account_position_dividends(filename: String) -> anyhow::Result<Vec<Account_Positions_Dividends>> {
+pub fn read_account_position_dividends(filename: String) -> anyhow::Result<Vec<AccountPositionsDividends>> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
 
@@ -132,9 +128,9 @@ pub fn read_account_position_dividends(filename: String) -> anyhow::Result<Vec<A
         .flexible(true)
         .from_reader(data_filter);
 
-    let mut records: Vec<Account_Positions_Dividends> = vec![];
+    let mut records: Vec<AccountPositionsDividends> = vec![];
     for result in reader.deserialize() {
-        let record: Account_Positions_Dividends = result?;
+        let record: AccountPositionsDividends = result?;
         records.push(record);
     }
     Ok(records)
@@ -145,22 +141,22 @@ pub async fn load_account_positions_overview(pool: &PgPool, filename: String) ->
 
     let cmd = r#"
         INSERT INTO Account_Positions_Overview (
-            Account_Number,
-            Account_Name,
-            Symbol,
-            Description,
-            Quantity,
-            Last_Price,
-            Last_Price_Change,
-            Current_Value,
-            Today_Gain_Loss_Dollar,
-            Today_Gain_Loss_Percent,
-            Total_Gain_Loss_Dollar,
-            Total_Gain_Loss_Percent,
-            Percent_Of_Account,
-            Cost_Basis_Total,
-            Average_Cost_Basis,
-            Type,
+            account_number,
+            account_name,
+            symbol,
+            description,
+            quantity,
+            last_price,
+            last_price_change,
+            current_value,
+            today_gain_loss_dollar,
+            today_gain_loss_percent,
+            total_gain_loss_dollar,
+            total_gain_loss_percent,
+            percent_of_account,
+            cost_basis_total,
+            average_cost_basis,
+            type,
             Hash
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         "#;
@@ -171,22 +167,22 @@ pub async fn load_account_positions_overview(pool: &PgPool, filename: String) ->
         let hash = digest(encoded);
 
         sqlx::query(cmd)
-            .bind(record.Account_Number)
-            .bind(record.Account_Name)
-            .bind(record.Symbol)
-            .bind(record.Description)
-            .bind(record.Quantity)
-            .bind(record.Last_Price)
-            .bind(record.Last_Price_Change)
-            .bind(record.Current_Value)
-            .bind(record.Today_Gain_Loss_Dollar)
-            .bind(record.Today_Gain_Loss_Percent)
-            .bind(record.Total_Gain_Loss_Dollar)
-            .bind(record.Total_Gain_Loss_Percent)
-            .bind(record.Percent_Of_Account)
-            .bind(record.Cost_Basis_Total)
-            .bind(record.Average_Cost_Basis)
-            .bind(record.Type)
+            .bind(record.account_number)
+            .bind(record.account_name)
+            .bind(record.symbol)
+            .bind(record.description)
+            .bind(record.quantity)
+            .bind(record.last_price)
+            .bind(record.last_price_change)
+            .bind(record.current_value)
+            .bind(record.today_gain_loss_dollar)
+            .bind(record.today_gain_loss_percent)
+            .bind(record.total_gain_loss_dollar)
+            .bind(record.total_gain_loss_percent)
+            .bind(record.percent_of_account)
+            .bind(record.cost_basis_total)
+            .bind(record.average_cost_basis)
+            .bind(record.r#type)
             .bind(hash)
             .execute(pool)
             .await?;
@@ -200,21 +196,21 @@ pub async fn load_account_positions_dividends(pool: &PgPool, filename: String) -
 
     let cmd = r#"
         INSERT INTO Account_Positions_Dividends (
-            Account_Number,
-            Account_Name,
-            Symbol,
-            Description,
-            Quantity,
-            Last_Price,
-            Last_Price_Change,
-            Current_Value,
-            Percent_Of_Account,
-            Ex_Date,
-            Amount_Per_Share,
-            Pay_Date,
-            Yield,
-            Est_Annual_Income,
-            Type,
+            account_number,
+            account_name,
+            symbol,
+            description,
+            quantity,
+            last_price,
+            last_price_change,
+            current_value,
+            percent_of_account,
+            ex_date,
+            amount_per_share,
+            pay_date,
+            yield,
+            est_annual_income,
+            type,
             Hash
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         "#;
@@ -225,21 +221,21 @@ pub async fn load_account_positions_dividends(pool: &PgPool, filename: String) -
         let hash = digest(encoded);
 
         sqlx::query(cmd)
-            .bind(record.Account_Number)
-            .bind(record.Account_Name)
-            .bind(record.Symbol)
-            .bind(record.Description)
-            .bind(record.Quantity)
-            .bind(record.Last_Price)
-            .bind(record.Last_Price_Change)
-            .bind(record.Current_Value)
-            .bind(record.Percent_Of_Account)
-            .bind(record.Ex_Date)
-            .bind(record.Amount_Per_Share)
-            .bind(record.Pay_Date)
-            .bind(record.Yield)
-            .bind(record.Est_Annual_Income)
-            .bind(record.Type)
+            .bind(record.account_number)
+            .bind(record.account_name)
+            .bind(record.symbol)
+            .bind(record.description)
+            .bind(record.quantity)
+            .bind(record.last_price)
+            .bind(record.last_price_change)
+            .bind(record.current_value)
+            .bind(record.percent_of_account)
+            .bind(record.ex_date)
+            .bind(record.amount_per_share)
+            .bind(record.pay_date)
+            .bind(record.r#yield)
+            .bind(record.est_annual_income)
+            .bind(record.r#type)
             .bind(hash)
             .execute(pool)
             .await?;

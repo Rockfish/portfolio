@@ -11,7 +11,7 @@ create table chart_data
     Profit_Margin         TEXT,
     TTM_Earnings          TEXT,
     PE_Ratio              TEXT,
-    Book_Value            TEXT,
+    book_value            TEXT,
     Div_Payout            TEXT,
     Current_Price         TEXT,
     Current_Yield         TEXT,

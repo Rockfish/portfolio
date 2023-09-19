@@ -18,7 +18,6 @@ cargo run -- load-account-history "Fidelity/account_history/Accounts_History_202
 cargo run -- load-account-history "Fidelity/account_history/Accounts_History_2023_Q2_(April 1, 2023 - June 30, 2023).csv"
 cargo run -- load-account-history "Fidelity/account_history/Accounts_History_2023_Q3_Partial_(July 1, 2023 - September 17, 2023).csv"
 
-
 cargo run -- load-account-position-overview "Fidelity/positions/Portfolio_Positions_Overview_Sep-08-2023.csv"
 cargo run -- load-account-position-dividends "Fidelity/positions/Portfolio_Positions_Dividend_Sep-08-2023.csv"
 

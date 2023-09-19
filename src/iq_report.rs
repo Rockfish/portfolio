@@ -1,5 +1,3 @@
-#![allow(non_snake_case)]
-#![allow(non_camel_case_types)]
 #![allow(dead_code)]
 
 #[allow(unused_imports)]
@@ -18,77 +16,77 @@ use time::Date;
 use crate::date_format;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct IQ_Report {
+pub struct IqReport {
     #[serde(rename = "STOCK")]
-    Stock: String,
+    stock: String,
     #[serde(rename = "Div Growth")]
-    Div_Growth: String,
+    div_growth: String,
     #[serde(rename = "Value Rating")]
-    Value_Rating: String,
+    value_rating: String,
     #[serde(rename = "Price")]
-    Price: Option<Decimal>,
+    price: Option<Decimal>,
     #[serde(rename = "Dividend")]
-    Dividend: Option<Decimal>,
+    dividend: Option<Decimal>,
     #[serde(rename = "Yield", deserialize_with = "deserialize_percentage")]
-    Yield: Option<Decimal>,
+    r#yield: Option<Decimal>,
     #[serde(rename = "Pts Dn")]
-    Points_Down: Option<Decimal>,
+    points_down: Option<Decimal>,
     #[serde(rename = "% Down", deserialize_with = "deserialize_percentage")]
-    Percent_Down: Option<Decimal>,
+    percent_down: Option<Decimal>,
     #[serde(rename = "Undervalue LoPr")]
-    Undervalue_Lo_Price: Option<Decimal>,
+    undervalue_lo_price: Option<Decimal>,
     #[serde(rename = "Undervalue HiYld", deserialize_with = "deserialize_percentage")]
-    Undervalue_Hi_Yield: Option<Decimal>,
+    undervalue_hi_yield: Option<Decimal>,
     #[serde(rename = "Pts Up")]
-    Points_Up: Option<Decimal>,
+    points_up: Option<Decimal>,
     #[serde(rename = "% Up", deserialize_with = "deserialize_percentage")]
-    Percent_Up: Option<Decimal>,
+    percent_up: Option<Decimal>,
     #[serde(rename = "Overvalue HiPr")]
-    Overvalue_Hi_Price: Option<Decimal>,
+    overvalue_hi_price: Option<Decimal>,
     #[serde(rename = "Overvalue LoYld", deserialize_with = "deserialize_percentage")]
-    Overvalue_Lo_Yield: Option<Decimal>,
+    overvalue_lo_yield: Option<Decimal>,
     #[serde(rename = "S&P")]
-    SP_Rating: String,
+    sp_rating: String,
     #[serde(rename = "52 wik Lo")]
-    Lo_52_Wk: Option<Decimal>,
+    lo_52_wk: Option<Decimal>,
     #[serde(rename = "52 wk Hi")]
-    Hi_52_Wk: Option<Decimal>,
+    hi_52_wk: Option<Decimal>,
     #[serde(rename = "Bk Val")]
-    Book_Value: Option<Decimal>,
+    book_value: Option<Decimal>,
     #[serde(rename = "12-Mo Earn")]
-    Earnings_12_Mo: Option<Decimal>,
+    earnings_12_mo: Option<Decimal>,
     #[serde(rename = "P/E")]
-    Price_to_Earnings: Option<Decimal>,
+    price_to_earnings: Option<Decimal>,
     #[serde(rename = "Pay out", deserialize_with = "deserialize_percentage")]
-    Pay_Out: Option<Decimal>,
+    pay_out: Option<Decimal>,
     #[serde(rename = "Div in Dgr")]
-    Div_In_Dgr: String,
+    div_in_dgr: String,
     #[serde(rename = "L/T Debt", deserialize_with = "deserialize_percentage")]
-    Long_Term_Debt: Option<Decimal>,
+    long_term_debt: Option<Decimal>,
     #[serde(rename = "BC")]
-    Bluechip_Criteria: Option<Decimal>,
+    bluechip_criteria: Option<Decimal>,
     #[serde(rename = "Tic")]
-    Symbol: String,
+    symbol: String,
     #[serde(rename = "SECTOR")]
-    Sector: String,
+    sector: String,
     #[serde(rename = "INDUSTRY")]
-    Industry: String,
+    industry: String,
     #[serde(rename = "SUB-SECTOR")]
-    Sub_Sector: String,
+    sub_sector: String,
     #[serde(rename = "3 Year Div Growth", deserialize_with = "deserialize_percentage")]
-    Div_Growth_3_Year: Option<Decimal>,
+    div_growth_3_year: Option<Decimal>,
     #[serde(rename = "5 year Div Growth", deserialize_with = "deserialize_percentage")]
-    Div_Growth_5_Year: Option<Decimal>,
+    div_growth_5_year: Option<Decimal>,
     #[serde(rename = "10 Year Div Growth", deserialize_with = "deserialize_percentage")]
-    Div_Growth_10_Year: Option<Decimal>,
+    div_growth_10_year: Option<Decimal>,
     #[serde(skip_deserializing)]
-    Report_Date: Option<Date>,
+    report_date: Option<Date>,
 }
 
 // #[serde_as]
 #[allow(dead_code)]
 #[derive(FromRow, Debug, Serialize, Deserialize)]
-pub struct IQ_Report_Table {
+pub struct IqReportTable {
     #[serde(skip)]
     id: i32,
     stock: String,
@@ -126,7 +124,7 @@ pub struct IQ_Report_Table {
     report_date: Option<Date>,
 }
 
-pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IQ_Report>> {
+pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IqReport>> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
 
@@ -138,7 +136,7 @@ pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IQ_Report>> {
         .flexible(true)
         .from_reader(buf_reader);
 
-    let mut records: Vec<IQ_Report> = vec![];
+    let mut records: Vec<IqReport> = vec![];
     for result in reader.deserialize() {
         match result {
             Ok(record) => records.push(record),
@@ -159,38 +157,38 @@ pub async fn load_iq_report(pool: &PgPool, filename: String, date_str: &str) -> 
 
     let cmd = r#"
         INSERT INTO IQ_Report (
-            Stock,
-            Div_Growth,
-            Value_Rating,
-            Price,
-            Dividend,
-            Yield,
-            Points_Down,
-            Percent_Down,
-            Undervalue_Lo_Price,
-            Undervalue_Hi_Yield,
-            Points_Up,
-            Percent_Up,
-            Overvalue_Hi_Price,
-            Overvalue_Lo_Yield,
-            SP_Rating,
-            Lo_52_Wk,
-            Hi_52_Wk,
-            Book_Value,
-            Earnings_12_Mo,
-            Price_to_Earnings,
-            Pay_Out,
-            Div_In_Dgr,
-            Long_Term_Debt,
-            Bluechip_Criteria,
-            Symbol,
-            Sector,
-            Industry,
-            Sub_Sector,
-            Div_Growth_3_Year,
-            Div_Growth_5_Year,
-            Div_Growth_10_Year,
-            Report_Date
+            stock,
+            div_growth,
+            value_rating,
+            price,
+            dividend,
+            yield,
+            points_down,
+            percent_down,
+            undervalue_lo_price,
+            undervalue_hi_yield,
+            points_up,
+            percent_up,
+            overvalue_hi_price,
+            overvalue_lo_yield,
+            sp_rating,
+            lo_52_wk,
+            hi_52_wk,
+            book_value,
+            earnings_12_mo,
+            price_to_earnings,
+            pay_out,
+            div_in_dgr,
+            long_term_debt,
+            bluechip_criteria,
+            symbol,
+            sector,
+            industry,
+            sub_sector,
+            div_growth_3_year,
+            div_growth_5_year,
+            div_growth_10_year,
+            report_date
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
                  $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32)
         "#;
@@ -201,37 +199,37 @@ pub async fn load_iq_report(pool: &PgPool, filename: String, date_str: &str) -> 
         // let hash = digest(encoded);
 
         sqlx::query(cmd)
-            .bind(record.Stock)
-            .bind(record.Div_Growth)
-            .bind(record.Value_Rating)
-            .bind(record.Price)
-            .bind(record.Dividend)
-            .bind(record.Yield)
-            .bind(record.Points_Down)
-            .bind(record.Percent_Down)
-            .bind(record.Undervalue_Lo_Price)
-            .bind(record.Undervalue_Hi_Yield)
-            .bind(record.Points_Up)
-            .bind(record.Percent_Up)
-            .bind(record.Overvalue_Hi_Price)
-            .bind(record.Overvalue_Lo_Yield)
-            .bind(record.SP_Rating)
-            .bind(record.Lo_52_Wk)
-            .bind(record.Hi_52_Wk)
-            .bind(record.Book_Value)
-            .bind(record.Earnings_12_Mo)
-            .bind(record.Price_to_Earnings)
-            .bind(record.Pay_Out)
-            .bind(record.Div_In_Dgr)
-            .bind(record.Long_Term_Debt)
-            .bind(record.Bluechip_Criteria)
-            .bind(record.Symbol)
-            .bind(record.Sector)
-            .bind(record.Industry)
-            .bind(record.Sub_Sector)
-            .bind(record.Div_Growth_3_Year)
-            .bind(record.Div_Growth_5_Year)
-            .bind(record.Div_Growth_10_Year)
+            .bind(record.stock)
+            .bind(record.div_growth)
+            .bind(record.value_rating)
+            .bind(record.price)
+            .bind(record.dividend)
+            .bind(record.r#yield)
+            .bind(record.points_down)
+            .bind(record.percent_down)
+            .bind(record.undervalue_lo_price)
+            .bind(record.undervalue_hi_yield)
+            .bind(record.points_up)
+            .bind(record.percent_up)
+            .bind(record.overvalue_hi_price)
+            .bind(record.overvalue_lo_yield)
+            .bind(record.sp_rating)
+            .bind(record.lo_52_wk)
+            .bind(record.hi_52_wk)
+            .bind(record.book_value)
+            .bind(record.earnings_12_mo)
+            .bind(record.price_to_earnings)
+            .bind(record.pay_out)
+            .bind(record.div_in_dgr)
+            .bind(record.long_term_debt)
+            .bind(record.bluechip_criteria)
+            .bind(record.symbol)
+            .bind(record.sector)
+            .bind(record.industry)
+            .bind(record.sub_sector)
+            .bind(record.div_growth_3_year)
+            .bind(record.div_growth_5_year)
+            .bind(record.div_growth_10_year)
             .bind(date)
             .execute(pool)
             .await?;
@@ -242,7 +240,7 @@ pub async fn load_iq_report(pool: &PgPool, filename: String, date_str: &str) -> 
 
 pub async fn iq_report_save_all(pool: &PgPool, filename: &str) {
     let mut output = File::create(filename).unwrap();
-    let mut stream = sqlx::query_as::<_, IQ_Report_Table>("select * from iq_report order by report_date, symbol").fetch(pool);
+    let mut stream = sqlx::query_as::<_, IqReportTable>("select * from iq_report order by report_date, symbol").fetch(pool);
 
     // output.write("[\n".as_bytes()).unwrap();
     while let Ok(item) = stream.try_next().await {
