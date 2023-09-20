@@ -93,8 +93,10 @@ pub async fn load_account_history(pool: &PgPool, filename: &str) -> anyhow::Resu
     if let Ok(last_source_file) = last_source_file {
         if min_date < last_source_file.end_date {
             let filename = Path::new(filename).file_name().unwrap().to_str().unwrap().to_string();
-            panic!("\nError: account history source file date ranges over lap.\nNew file: '{}' overlaps with: '{}'\nRecords need to be newer than: {}\n",
-            filename, last_source_file.filename, last_source_file.end_date);
+            panic!(
+                "\nError: account history source file date ranges over lap.\nNew file: '{}' overlaps with: '{}'\nRecords need to be newer than: {}\n",
+                filename, last_source_file.filename, last_source_file.end_date
+            );
         }
     }
 
@@ -104,7 +106,6 @@ pub async fn load_account_history(pool: &PgPool, filename: &str) -> anyhow::Resu
 }
 
 async fn insert_account_history_records(pool: &PgPool, records: &Vec<AccountHistory>, source_file_id: i32) -> anyhow::Result<u32> {
-
     let cmd = r#"
         INSERT INTO Account_History (
             run_date,
@@ -174,19 +175,20 @@ fn get_records_date_range(records: &Vec<AccountHistory>) -> (Date, Date) {
 }
 
 async fn get_last_account_history_source_file(pool: &PgPool) -> Result<AccountHistorySourceFile, Error> {
-
     let result = sqlx::query_as::<_, AccountHistorySourceFile>(
         r#"
         select id, filename, start_date, end_date
         from account_history_source_file
         where end_date = (select max(end_date) from account_history_source_file)
-    "#
-    ).fetch_one(pool).await;
+    "#,
+    )
+    .fetch_one(pool)
+    .await;
 
     result
 }
 
-async fn add_account_history_source_file(pool: &PgPool, filename: &str, records: &Vec<AccountHistory>) ->anyhow::Result<i32> {
+async fn add_account_history_source_file(pool: &PgPool, filename: &str, records: &Vec<AccountHistory>) -> anyhow::Result<i32> {
     let name = Path::new(filename).file_name().unwrap().to_str().unwrap().to_string();
     let (min_date, max_date) = get_records_date_range(records);
 
@@ -203,8 +205,8 @@ async fn add_account_history_source_file(pool: &PgPool, filename: &str, records:
         min_date,
         max_date,
     )
-        .fetch_one(pool)
-        .await?;
+    .fetch_one(pool)
+    .await?;
 
-   Ok(rec.id)
+    Ok(rec.id)
 }

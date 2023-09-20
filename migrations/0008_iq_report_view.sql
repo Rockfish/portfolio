@@ -51,3 +51,26 @@ select ad.symbol                                                           as sy
 from account_dividends_aggregate ad
          left join iq_report_latest ir on ad.symbol = ir.symbol
 order by "%_of_overvalue" desc nulls last;
+
+
+-- Undervalue stocks
+create view iq_report_top_undervalue_stocks as
+select symbol,
+       stock,
+       overvalue_hi_price  as "hi price",
+       price,
+       undervalue_lo_price as "lo price",
+       points_up           as "points up",
+       percent_up          as "% up",
+       points_down         as "points down",
+       points_down         as "% down",
+       undervalue_hi_yield as "under hi yield",
+       yield,
+       overvalue_lo_yield  as "over lo yield",
+       sector,
+       bluechip_criteria   as "bluechip criteria"
+from iq_report_latest
+where sp_rating in ('A+', 'A', 'A-')
+  and div_in_dgr = ''
+  and value_rating = 'U'
+order by "% up" desc, symbol;

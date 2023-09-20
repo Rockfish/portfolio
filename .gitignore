@@ -1,4 +1,5 @@
 /target
-t
+/polygon-client/target
 .sqlx
+t
 

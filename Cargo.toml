@@ -25,3 +25,4 @@ toml = "0.8.0"
 chrono = "0.4.30"
 #map-macro = "0.2.6"
 serde_json = { version = "1.0.105", features = [] }
+polygon-io-client_rust = { git="https://github.com/Rockfish/polygon-io-client_rust.git", branch = "main" }
