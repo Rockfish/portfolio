@@ -22,7 +22,8 @@ select overview_id,
        yield,
 --        calculated_yield,
        est_annual_income,
-       type
+       type,
+       as_of_date
 from (select overview.id                                                           as overview_id,
              dividends.id                                                          as dividend_id,
              (coalesce(overview.account_number, dividends.account_number))         as account_number,
@@ -47,7 +48,8 @@ from (select overview.id                                                        
 --              round(((COALESCE(dividends.amount_per_share, 0 ) * (case when dividends.symbol = 'RIO' then 2 else 4 end)
 --                  ) / dividends.last_price) * 100, 2) as calculated_yield,
              est_annual_income,
-             (coalesce(overview.type, dividends.type))                             as type
+             (coalesce(overview.type, dividends.type))                             as type,
+             overview.as_of_date
       from (select * from Account_Positions_Overview where symbol <> '') overview
                full outer join (select * from Account_Positions_Dividends where symbol <> '') dividends
                                on overview.symbol = dividends.symbol and overview.quantity = dividends.quantity) data;

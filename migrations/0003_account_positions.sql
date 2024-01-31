@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Account_Positions_Overview
     cost_basis_total        DECIMAL(10, 2),
     average_cost_basis      DECIMAL(10, 2),
     type                    TEXT,
+    as_of_date              DATE,
     Hash                    TEXT
 );
 
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS Account_Positions_Dividends
     yield              DECIMAL(10, 2),
     est_annual_income  DECIMAL(10, 2),
     type               TEXT,
+    as_of_date         DATE,
     Hash               TEXT
 );
 

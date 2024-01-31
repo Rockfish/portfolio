@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO Account_History_Source_File (\n            filename,\n            start_date,\n            end_date\n        ) VALUES ($1, $2, $3)\n        RETURNING id;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Date",
+        "Date"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "75344b755f61ff5a4a1de9e5b2fd2d4c98ddea6a71278ca7d633718e2786c54c"
+}

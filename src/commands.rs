@@ -9,8 +9,8 @@ pub struct Args {
 #[derive(StructOpt)]
 pub enum Command {
     LoadAccountHistory { filename: String },
-    LoadAccountPositionOverview { filename: String },
-    LoadAccountPositionDividends { filename: String },
+    LoadAccountPositionOverview { filename: String, date: String },
+    LoadAccountPositionDividends { filename: String, date: String },
     LoadBlueChipStocks { filename: String },
     LoadChartData { filename: String },
     // data format: [month]/[day]/[year]

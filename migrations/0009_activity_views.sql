@@ -2,9 +2,10 @@
 create view stock_activity_summary as
 select symbol,
        activity,
-       TO_char(sum(amount), '999,999D99')                                                               sum,
-       max(run_date)                                                                                    max_date,
+--        TO_char(sum(amount), '999,999D99')                                                               sum,
+       sum(amount)                                                                                      sum_amount,
        min(run_date)                                                                                    min_date,
+       max(run_date)                                                                                    max_date,
        (case when symbol in (select distinct symbol from account_positions) THEN 'Own' ELSE 'Sold' END) status
 from accounts_activity
 where activity not in ('Transferred in', 'Transferred out', 'Transfer of assets')

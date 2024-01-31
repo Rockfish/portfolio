@@ -56,6 +56,8 @@ pub struct AccountPositionsOverview {
     average_cost_basis: Option<Decimal>,
     #[serde(rename = "Type")]
     r#type: String,
+    #[serde(skip_deserializing, with = "date_format")]
+    as_of_date: Option<Date>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -90,6 +92,8 @@ pub struct AccountPositionsDividends {
     est_annual_income: Option<Decimal>,
     #[serde(rename = "Type")]
     r#type: String,
+    #[serde(skip_deserializing, with = "date_format")]
+    as_of_date: Option<Date>,
 }
 
 pub fn read_account_position_overview(filename: String) -> anyhow::Result<Vec<AccountPositionsOverview>> {
@@ -136,8 +140,11 @@ pub fn read_account_position_dividends(filename: String) -> anyhow::Result<Vec<A
     Ok(records)
 }
 
-pub async fn load_account_positions_overview(pool: &PgPool, filename: String) -> anyhow::Result<u32> {
+pub async fn load_account_positions_overview(pool: &PgPool, filename: String, date_str: &str) -> anyhow::Result<u32> {
     let records = read_account_position_overview(filename)?;
+
+    let format = format_description!("[month]-[day]-[year]");
+    let date = Date::parse(date_str, &format).unwrap();
 
     let cmd = r#"
         INSERT INTO Account_Positions_Overview (
@@ -157,8 +164,9 @@ pub async fn load_account_positions_overview(pool: &PgPool, filename: String) ->
             cost_basis_total,
             average_cost_basis,
             type,
+            as_of_date,
             Hash
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
         "#;
 
     let mut count = 0;
@@ -183,6 +191,7 @@ pub async fn load_account_positions_overview(pool: &PgPool, filename: String) ->
             .bind(record.cost_basis_total)
             .bind(record.average_cost_basis)
             .bind(record.r#type)
+            .bind(date)
             .bind(hash)
             .execute(pool)
             .await?;
@@ -191,8 +200,11 @@ pub async fn load_account_positions_overview(pool: &PgPool, filename: String) ->
     Ok(count)
 }
 
-pub async fn load_account_positions_dividends(pool: &PgPool, filename: String) -> anyhow::Result<u32> {
+pub async fn load_account_positions_dividends(pool: &PgPool, filename: String, date_str: &str) -> anyhow::Result<u32> {
     let records = read_account_position_dividends(filename)?;
+
+    let format = format_description!("[month]-[day]-[year]");
+    let date = Date::parse(date_str, &format).unwrap();
 
     let cmd = r#"
         INSERT INTO Account_Positions_Dividends (
@@ -211,8 +223,9 @@ pub async fn load_account_positions_dividends(pool: &PgPool, filename: String) -
             yield,
             est_annual_income,
             type,
+            as_of_date,
             Hash
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         "#;
 
     let mut count = 0;
@@ -236,6 +249,7 @@ pub async fn load_account_positions_dividends(pool: &PgPool, filename: String) -
             .bind(record.r#yield)
             .bind(record.est_annual_income)
             .bind(record.r#type)
+            .bind(date)
             .bind(hash)
             .execute(pool)
             .await?;
@@ -250,7 +264,7 @@ pub fn extract_date(filename: &str) -> Result<Date, String> {
 
     for line in buf_reader.lines().flatten() {
         if line.starts_with("\"Date downloaded") {
-            let format = format_description!("[month]/[day]/[year]");
+            let format = format_description!("[month]-[day]-[year]");
             let date_str = &line[17..27];
             return match Date::parse(date_str, &format) {
                 Ok(date) => Ok(date),

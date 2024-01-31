@@ -37,25 +37,25 @@ async fn main() -> anyhow::Result<()> {
             }
             Err(e) => println!("Error: {e}"),
         },
-        Some(Command::LoadAccountPositionOverview { filename }) => match get_file_path(&config, &filename) {
+        Some(Command::LoadAccountPositionOverview { filename, date }) => match get_file_path(&config, &filename) {
             Ok(filename) => {
-                if !filename.contains("Portfolio_Positions_Overview") {
-                    println!("Error: not a Portfolio_Positions_Overview file: {filename}")
+                if !(filename.contains("Portfolio_Positions") && filename.contains("overview")) {
+                    println!("Error: In correct file type. Name must be of format: Portfolio_Positions_<date>_overview.csv: {filename}")
                 } else {
                     println!("Loading account positions_overview from: '{filename}'");
-                    let count = load_account_positions_overview(&pool, filename).await?;
+                    let count = load_account_positions_overview(&pool, filename, &date).await?;
                     println!("Added {count} records");
                 }
             }
             Err(e) => println!("Error: {e}"),
         },
-        Some(Command::LoadAccountPositionDividends { filename }) => match get_file_path(&config, &filename) {
+        Some(Command::LoadAccountPositionDividends { filename, date }) => match get_file_path(&config, &filename) {
             Ok(filename) => {
-                if !filename.contains("Portfolio_Positions_Dividend") {
-                    println!("Error: not a Portfolio_Positions_Dividend file: {filename}")
+                if !(filename.contains("Portfolio_Positions") && filename.contains("dividend")) {
+                    println!("Error: In correct file type. Name must be of format: Portfolio_Positions_<date>_dividend.csv: {filename}")
                 } else {
                     println!("Loading account position dividends from: '{filename}'");
-                    let count = load_account_positions_dividends(&pool, filename).await?;
+                    let count = load_account_positions_dividends(&pool, filename, &date).await?;
                     println!("Added {count} records");
                 }
             }
