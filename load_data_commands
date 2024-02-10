@@ -28,6 +28,9 @@ cargo run -- load-account-history "Fidelity/account_history/Accounts_History_202
 cargo run -- load-account-history "Fidelity/account_history/Accounts_History_2023_Q3_07-01_to_09-30.csv"
 cargo run -- load-account-history "Fidelity/account_history/Accounts_History_2023_Q4_10-01_to_12-30.csv"
 
+# 2024
+cargo run -- load-account-history "Fidelity/account_history/Accounts_History_2024_Q1_01-01_to_02-10_partial.csv"
+
 # position and dividend - Jan 31 2024
 cargo run -- load-account-position-overview "Fidelity/positions/Portfolio_Positions_Jan-31-2024_overview.csv" "01-31-2024"
 cargo run -- load-account-position-dividends "Fidelity/positions/Portfolio_Positions_Jan-31-2024_dividend.csv" "01-31-2024"

@@ -38,7 +38,7 @@ where
     }
     let s = parts.join("/");
 
-    let result = NaiveDate::parse_from_str(&s, "%Y-%m-%d").map_err(|e| {
+    let result = NaiveDate::parse_from_str(&s, "%m/%d/%Y").map_err(|e| {
         warn!("Error: {:?}", &e);
         e
     });

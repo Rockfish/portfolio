@@ -34,7 +34,7 @@ async fn main() -> anyhow::Result<()> {
     sqlx::migrate!("./migrations").run(&pool).await?;
     println!("migration completed");
 
-    get_bought_records(&pool, "RIO").await;
+    get_bought_records(&pool, "ORCL").await;
 
     match args.cmd {
         Some(Command::LoadAccountHistory { filename }) => match get_file_path(&config, &filename) {

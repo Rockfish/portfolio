@@ -2,7 +2,6 @@ use ron::from_str;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-// use sha256::digest;
 use sqlx::PgPool;
 
 #[derive(Debug, Deserialize, Serialize)]
