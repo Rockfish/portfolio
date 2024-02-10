@@ -1,5 +1,5 @@
 
-create or replace view Accounts_History_Normalized as
+create or replace view Account_History_Normalized as
 select id,
        Run_Date             AS Run_Date,
        Account              AS Account,

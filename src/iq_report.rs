@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use std::fs::File;
 use std::io::{BufReader, Write};
-use time::macros::format_description;
-use time::Date;
+use chrono::NaiveDate;
+use log::warn;
 
 #[allow(unused_imports)]
 use crate::date_format;
@@ -80,7 +80,7 @@ pub struct IqReport {
     #[serde(rename = "10 Year Div Growth", deserialize_with = "deserialize_percentage")]
     div_growth_10_year: Option<Decimal>,
     #[serde(skip_deserializing)]
-    report_date: Option<Date>,
+    report_date: Option<NaiveDate>,
 }
 
 // #[serde_as]
@@ -121,7 +121,7 @@ pub struct IqReportTable {
     div_growth_5_year: Option<Decimal>,
     div_growth_10_year: Option<Decimal>,
     #[serde(with = "date_format")]
-    report_date: Option<Date>,
+    report_date: Option<NaiveDate>,
 }
 
 pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IqReport>> {
@@ -152,8 +152,10 @@ pub fn read_iq_report(filename: String) -> anyhow::Result<Vec<IqReport>> {
 pub async fn load_iq_report(pool: &PgPool, filename: String, date_str: &str) -> anyhow::Result<u32> {
     let records = read_iq_report(filename)?;
 
-    let format = format_description!("[month]/[day]/[year]");
-    let date = Date::parse(date_str, &format).unwrap();
+    let date = NaiveDate::parse_from_str(&date_str, "%m/%d/%Y").map_err(|e| {
+        warn!("Error: {:?}", &e);
+        e
+    })?;
 
     let cmd = r#"
         INSERT INTO IQ_Report (
@@ -247,7 +249,6 @@ pub async fn iq_report_save_all(pool: &PgPool, filename: &str) {
         match item {
             None => break,
             Some(report) => {
-                // let data = ron::to_string(&report).unwrap();
                 let data = serde_json::to_string(&report).unwrap();
                 output.write(data.as_bytes()).unwrap();
                 output.write("\n".as_bytes()).unwrap();

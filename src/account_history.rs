@@ -6,19 +6,19 @@ use crate::date_format;
 use date_format::*;
 
 use crate::data_filter::DataFilter;
+use chrono::NaiveDate;
 use csv::{ReaderBuilder, Trim};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use sqlx::{Error, FromRow, PgPool};
 use std::fs::File;
 use std::io::BufReader;
-use std::path::Path;
-use time::Date;
+use std::path::Path; // use time::Date;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AccountHistory {
     #[serde(rename = "Run Date", with = "date_format")]
-    run_date: Option<Date>,
+    run_date: Option<NaiveDate>,
     #[serde(rename = "Account")]
     account: String,
     #[serde(rename = "Action")]
@@ -50,7 +50,7 @@ pub struct AccountHistory {
     #[serde(rename = "Amount")]
     amount: Option<Decimal>,
     #[serde(rename = "Settlement Date", with = "date_format")]
-    settlement_date: Option<Date>,
+    settlement_date: Option<NaiveDate>,
     #[serde(skip)]
     source_file_id: i32,
 }
@@ -59,8 +59,8 @@ pub struct AccountHistory {
 pub struct AccountHistorySourceFile {
     id: i32,
     filename: String,
-    start_date: Date,
-    end_date: Date,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
 }
 
 pub fn read_account_history_records(filename: &str) -> anyhow::Result<Vec<AccountHistory>> {
@@ -158,9 +158,9 @@ async fn insert_account_history_records(pool: &PgPool, records: &Vec<AccountHist
     Ok(count)
 }
 
-fn get_records_date_range(records: &Vec<AccountHistory>) -> (Date, Date) {
-    let mut min_date = Date::MAX;
-    let mut max_date = Date::MIN;
+fn get_records_date_range(records: &Vec<AccountHistory>) -> (NaiveDate, NaiveDate) {
+    let mut min_date = NaiveDate::MAX;
+    let mut max_date = NaiveDate::MIN;
     for record in records {
         if let Some(run_date) = record.run_date {
             if run_date < min_date {

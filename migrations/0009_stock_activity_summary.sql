@@ -7,7 +7,7 @@ select symbol,
        min(run_date) as                                                                                 min_date,
        max(run_date) as                                                                                 max_date,
        (case when symbol in (select distinct symbol from account_positions_normalized) THEN 'Own' ELSE 'Sold' END) status
-from accounts_history_normalized
+from account_history_normalized
 where activity not in ('Transferred in', 'Transferred out', 'Transfer of assets')
   and symbol not in ('', '00162Q866', '315994103', '850578TU9')
 --   and symbol not in (select distinct symbol from account_positions)

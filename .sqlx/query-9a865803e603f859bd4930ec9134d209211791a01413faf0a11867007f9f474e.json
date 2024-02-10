@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT symbol,\n           run_date,\n           SUM(amount) as amount,\n           SUM(quantity) as quantity\n        FROM account_history_normalized\n        WHERE symbol not in ('FDRXX', 'SPAXX')\n        and activity in ('Sold')\n        GROUP BY symbol, run_date;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "symbol",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "run_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 2,
+        "name": "amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 3,
+        "name": "quantity",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "9a865803e603f859bd4930ec9134d209211791a01413faf0a11867007f9f474e"
+}

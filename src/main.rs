@@ -8,6 +8,7 @@ mod data_filter;
 mod date_format;
 mod decimal_formats;
 mod iq_report;
+mod rate_of_returns;
 
 use crate::account_history::load_account_history;
 use crate::account_positions::{load_account_positions_dividends, load_account_positions_overview};
@@ -16,6 +17,8 @@ use crate::chart_data::load_chart_data;
 use crate::commands::{Args, Command};
 use crate::config::{get_config, get_file_path};
 use crate::iq_report::load_iq_report;
+use crate::rate_of_returns::read_history::get_bought_records;
+use log::info;
 use sqlx::postgres::PgPool;
 use structopt::StructOpt;
 
@@ -25,8 +28,13 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::from_args_safe()?;
     let pool = PgPool::connect(&config.db_connection_string).await?;
 
+    // let db = get_db_connection(&config.db_connection_string).await?;
+    // println!("db connection is ok: {}", db.ping().await.is_ok());
+
     sqlx::migrate!("./migrations").run(&pool).await?;
     println!("migration completed");
+
+    get_bought_records(&pool, "RIO").await;
 
     match args.cmd {
         Some(Command::LoadAccountHistory { filename }) => match get_file_path(&config, &filename) {

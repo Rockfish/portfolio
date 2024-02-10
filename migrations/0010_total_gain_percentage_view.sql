@@ -4,11 +4,11 @@ select total_dividend_and_interest,
              total_dividend_and_interest + total_stocks_gain_loss                                               as total_gain,
              current_value_jan_31_2023,
              round((total_dividend_and_interest + total_stocks_gain_loss) / (current_value_jan_31_2023 - total_dividend_and_interest) * 100, 2) as percentage,
-             (select sum(amount) from accounts_history_normalized where extract(year from run_date) > 2022 and activity = 'Electronic funds paid out') as paid_out
+             (select sum(amount) from account_history_normalized where extract(year from run_date) > 2022 and activity = 'Electronic funds paid out') as paid_out
       from (select sum(current_value)                                              as current_value_jan_31_2023,
                    sum(total_gain_loss_dollar)                                     as total_stocks_gain_loss,
                    (select sum(amount) as total_dividend_and_interest
-                    from accounts_history_normalized
+                    from account_history_normalized
                     where extract(year from run_date) > 2022
                       and (activity = 'Dividend' or activity = 'Interest Earned')) as total_dividend_and_interest
             from account_positions_normalized

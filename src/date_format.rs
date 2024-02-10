@@ -1,26 +1,25 @@
+use chrono::NaiveDate;
+use log::warn;
 use serde::{self, Deserialize, Deserializer, Serializer};
-use time::macros::format_description;
-use time::Date;
 
-pub fn serialize<S>(date: &Option<Date>, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize<S>(date: &Option<NaiveDate>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
     match date {
         None => serializer.serialize_str(""),
         Some(date) => {
-            let format = format_description!("[year]-[month]-[day]");
-            let s = format!("{}", date.format(&format).unwrap());
+            let format = "%Y-%m-%d"; // %Y-%m-%d"
+            let s = date.format(&format).to_string();
             serializer.serialize_str(&s)
         }
     }
 }
 
-pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Date>, D::Error>
+pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDate>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let format = format_description!("[month]/[day]/[year]");
     let s = String::deserialize(deserializer)?;
 
     // Hack to fix 2 digit year and 1 digit month in the settlement column
@@ -39,7 +38,10 @@ where
     }
     let s = parts.join("/");
 
-    let result = Date::parse(&s, &format);
+    let result = NaiveDate::parse_from_str(&s, "%Y-%m-%d").map_err(|e| {
+        warn!("Error: {:?}", &e);
+        e
+    });
 
     match result {
         Ok(date) => Ok(Some(date)),

@@ -8,8 +8,8 @@ use sha256::digest;
 use sqlx::PgPool;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use time::macros::format_description;
-use time::Date;
+use chrono::NaiveDate;
+use log::warn;
 
 #[allow(unused_imports)]
 use crate::decimal_formats::*;
@@ -21,7 +21,7 @@ use date_format::*;
 
 // Fidelity Account Position - Overview and Dividends views
 // These are the struct for reading in the raw Fidelity data.
-// Can be join on {account_number, symbol, quantity)
+// Can be joined on {account_number, symbol, quantity)
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AccountPositionsOverview {
     #[serde(rename = "Account Number")]
@@ -57,7 +57,7 @@ pub struct AccountPositionsOverview {
     #[serde(rename = "Type")]
     r#type: String,
     #[serde(skip_deserializing, with = "date_format")]
-    as_of_date: Option<Date>,
+    as_of_date: Option<NaiveDate>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -81,11 +81,11 @@ pub struct AccountPositionsDividends {
     #[serde(rename = "Percent Of Account", deserialize_with = "deserialize_percentage")]
     percent_of_account: Option<Decimal>,
     #[serde(rename = "Ex-Date", with = "date_format")]
-    ex_date: Option<Date>,
+    ex_date: Option<NaiveDate>,
     #[serde(rename = "Amount Per Share", deserialize_with = "deserialize_dollar")]
     amount_per_share: Option<Decimal>,
     #[serde(rename = "Pay Date", with = "date_format")]
-    pay_date: Option<Date>,
+    pay_date: Option<NaiveDate>,
     #[serde(rename = "Yield", deserialize_with = "deserialize_percentage")]
     r#yield: Option<Decimal>,
     #[serde(rename = "Est. Annual Income", deserialize_with = "deserialize_dollar")]
@@ -93,7 +93,7 @@ pub struct AccountPositionsDividends {
     #[serde(rename = "Type")]
     r#type: String,
     #[serde(skip_deserializing, with = "date_format")]
-    as_of_date: Option<Date>,
+    as_of_date: Option<NaiveDate>,
 }
 
 pub fn read_account_position_overview(filename: String) -> anyhow::Result<Vec<AccountPositionsOverview>> {
@@ -143,8 +143,13 @@ pub fn read_account_position_dividends(filename: String) -> anyhow::Result<Vec<A
 pub async fn load_account_positions_overview(pool: &PgPool, filename: String, date_str: &str) -> anyhow::Result<u32> {
     let records = read_account_position_overview(filename)?;
 
-    let format = format_description!("[month]-[day]-[year]");
-    let date = Date::parse(date_str, &format).unwrap();
+    // let format = format_description!("[month]-[day]-[year]");
+    // let date = Date::parse(date_str, &format).unwrap();
+
+    let date = NaiveDate::parse_from_str(date_str, "%m-%d-%Y").map_err(|e| {
+        warn!("Error: {:?}", &e);
+        e
+    })?;
 
     let cmd = r#"
         INSERT INTO Account_Positions_Overview (
@@ -203,8 +208,13 @@ pub async fn load_account_positions_overview(pool: &PgPool, filename: String, da
 pub async fn load_account_positions_dividends(pool: &PgPool, filename: String, date_str: &str) -> anyhow::Result<u32> {
     let records = read_account_position_dividends(filename)?;
 
-    let format = format_description!("[month]-[day]-[year]");
-    let date = Date::parse(date_str, &format).unwrap();
+    // let format = format_description!("[month]-[day]-[year]");
+    // let date = Date::parse(date_str, &format).unwrap();
+
+    let date = NaiveDate::parse_from_str(date_str, "%m-%d-%Y").map_err(|e| {
+        warn!("Error: {:?}", &e);
+        e
+    })?;
 
     let cmd = r#"
         INSERT INTO Account_Positions_Dividends (
@@ -258,15 +268,19 @@ pub async fn load_account_positions_dividends(pool: &PgPool, filename: String, d
     Ok(count)
 }
 
-pub fn extract_date(filename: &str) -> Result<Date, String> {
+pub fn extract_date(filename: &str) -> Result<NaiveDate, String> {
     let file = File::open(filename).expect("Failed to open file");
     let buf_reader = BufReader::new(file);
 
     for line in buf_reader.lines().flatten() {
         if line.starts_with("\"Date downloaded") {
-            let format = format_description!("[month]-[day]-[year]");
+            // let format = format_description!("[month]-[day]-[year]");
             let date_str = &line[17..27];
-            return match Date::parse(date_str, &format) {
+            let result = NaiveDate::parse_from_str(date_str, "%m-%d-%Y").map_err(|e| {
+                warn!("Error: {:?}", &e);
+                e
+            });
+            return match result {
                 Ok(date) => Ok(date),
                 Err(e) => Err(e.to_string()),
             };

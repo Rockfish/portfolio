@@ -1,0 +1,28 @@
+/*
+create view account_positions_normalized (
+overview_id,
+dividend_id,
+account_number,
+account_name,
+symbol,
+description,
+quantity,
+last_price,
+last_price_change,
+current_value,
+percent_of_account,
+today_gain_loss_dollar,
+today_gain_loss_percent,
+total_gain_loss_dollar,
+total_gain_loss_percent,
+cost_basis_total,
+average_cost_basis,
+ex_date,
+amount_per_share,
+pay_date,
+yield,
+est_annual_income,
+type,
+as_of_date
+)
+ */

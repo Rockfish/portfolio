@@ -8,21 +8,30 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 bincode = "1.3.3"
-#chrono = "0.4.29"
 csv = "1.2.2"
 futures = "0.3"
-lopdf = { version = "0.31.0", features = ["pom", "pom_parser"] }
 ron = "0.8"
-rust_decimal = "1.32.0"
+log = "0.4.20"
+chrono = { version = "0.4.30", features = ["serde"] }
 serde = { version = "1.0.188", features = ["derive"] }
 sha256 = "1.4.0"
 shellexpand = "3.1.0"
-sqlx = { version = "0.7.1", features = [ "postgres", "runtime-tokio-native-tls", "rust_decimal", "time" ] }
 structopt = "0.3"
-time = { version = "0.3.28", features = ["serde", "parsing"] }
-tokio = { version = "1.20.0", features = ["rt", "macros"]}
+tokio = { version = "1.20.0", features = ["rt", "macros"] }
 toml = "0.8.0"
-chrono = "0.4.30"
-#map-macro = "0.2.6"
 serde_json = { version = "1.0.105", features = [] }
-polygon-io-client_rust = { git="https://github.com/Rockfish/polygon-io-client_rust.git", branch = "main" }
+rust_decimal = { version = "1.32.0", features = ["serde"] }
+map-macro = "0.3.0"
+lopdf = { version = "0.32.0", features = ["pom", "pom_parser"] }
+sqlx = { version = "0.7.1", features = ["runtime-tokio-native-tls", "rust_decimal", "chrono", "sqlx-macros", "postgres"] }
+polygon-io-client_rust = { git = "https://github.com/Rockfish/polygon-io-client_rust.git", branch = "main" }
+
+[dev-dependencies]
+sea-orm = { version = "0.12.12", features = ["sqlx-postgres", "runtime-tokio-native-tls", "macros", "bigdecimal"] }
+#dotenvy = "0.15.7"
+#time = { version = "0.3.28", features = ["serde", "parsing"] }
+rust_decimal = "1.32.0"
+
+[[example]]
+name = "orm_vs_sqlx"
+path = "examples/orm_example/main.rs"

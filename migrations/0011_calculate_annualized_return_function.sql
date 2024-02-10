@@ -81,14 +81,14 @@ BEGIN
     -- Dividend
     select sum(amount)
     into dividends_received
-    from accounts_history_normalized
+    from account_history_normalized
     where symbol = symbol_name
       and activity in ('Dividend');
 
     -- Sold
     select max(run_date), -1 * sum(quantity), sum(amount), -1 * sum(amount) / sum(quantity)
     into sell_date, number_of_shares, sold_amount, sell_price
-    from accounts_history_normalized h
+    from account_history_normalized h
     where h.symbol = symbol_name
       and activity in ('Sold')
     group by h.symbol, activity;
@@ -101,7 +101,7 @@ BEGIN
                              sum(quantity)                    as quantity,
                              -1 * sum(amount)                 as amount,
                              -1 * sum(amount) / sum(quantity) as buy_price -- works with group by
-                      from accounts_history_normalized
+                      from account_history_normalized
                       where symbol = symbol_name
                         and activity in ('Bought', 'Reinvestment')
                       group by activity, run_date
